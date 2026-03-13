@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getPosts, getCategories, formatDate } from '@/lib/cosmic'
 import PostCard from '@/components/PostCard'
+import NewsletterSignup from '@/components/NewsletterSignup'
 import type { Post } from '@/types'
 
 export default async function HomePage() {
@@ -98,6 +99,11 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Newsletter CTA */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <NewsletterSignup />
+      </section>
 
       {/* Posts Grid */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">

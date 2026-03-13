@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPostBySlug, getPosts, formatDate } from '@/lib/cosmic'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import AuthorCard from '@/components/AuthorCard'
+import NewsletterSignup from '@/components/NewsletterSignup'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -121,6 +122,11 @@ export default async function PostPage({ params }: PageProps) {
       {/* Content */}
       <div className="prose prose-lg prose-gray max-w-none mb-12">
         <MarkdownRenderer content={post.metadata?.content || ''} />
+      </div>
+
+      {/* Newsletter CTA */}
+      <div className="mb-12">
+        <NewsletterSignup />
       </div>
 
       {/* Author Bio */}
