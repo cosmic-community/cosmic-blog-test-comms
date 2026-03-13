@@ -29,6 +29,13 @@ export default function Header() {
             >
               Categories
             </Link>
+            {/* Changed: Added About page link */}
+            <Link
+              href="/about"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              About
+            </Link>
             {/* Changed: Added search link with magnifying glass icon */}
             <Link
               href="/search"

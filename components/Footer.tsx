@@ -34,6 +34,13 @@ export default function Footer() {
             >
               Categories
             </Link>
+            {/* Changed: Added About link to footer navigation */}
+            <Link
+              href="/about"
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              About
+            </Link>
           </nav>
           <p className="text-sm text-gray-400">
             &copy; {currentYear} Cosmic Blog. Powered by{' '}
