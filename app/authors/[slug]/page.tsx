@@ -3,12 +3,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAuthorBySlug, getPostsByAuthorId, getAuthors } from '@/lib/cosmic'
 import PostCard from '@/components/PostCard'
+import JsonLd from '@/components/JsonLd'
+import { getAuthorMetadata, getPersonJsonLd, getBreadcrumbJsonLd, absoluteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+// Changed: Enhanced generateMetadata with full OG profile tags and Twitter cards
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const author = await getAuthorBySlug(slug)
@@ -17,10 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Author Not Found' }
   }
 
-  return {
-    title: `${author.metadata?.name || author.title} | Cosmic Blog`,
-    description: author.metadata?.bio || `Posts by ${author.title}`,
-  }
+  return getAuthorMetadata(author)
 }
 
 export async function generateStaticParams() {
@@ -47,8 +47,19 @@ export default async function AuthorPage({ params }: PageProps) {
     return dateB - dateA
   })
 
+  // Changed: Build JSON-LD structured data for author
+  const personJsonLd = getPersonJsonLd(author)
+  const breadcrumbJsonLd = getBreadcrumbJsonLd([
+    { name: 'Home', url: absoluteUrl('/') },
+    { name: author.metadata?.name || author.title, url: absoluteUrl(`/authors/${author.slug}`) },
+  ])
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Changed: JSON-LD structured data for author and breadcrumbs */}
+      <JsonLd data={personJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-brand-600 transition-colors">

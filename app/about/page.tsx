@@ -2,11 +2,24 @@ import type { Metadata } from 'next'
 import { getPageBySlug, getAuthors } from '@/lib/cosmic'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import Link from 'next/link'
+import JsonLd from '@/components/JsonLd'
+import { getBreadcrumbJsonLd, absoluteUrl, SITE_NAME } from '@/lib/seo'
 import type { Author } from '@/types'
 
+// Changed: Enhanced metadata with OG tags for about page
 export const metadata: Metadata = {
-  title: 'About — Cosmic Blog',
-  description: 'Learn more about Cosmic Blog and the team behind it.',
+  title: 'About',
+  description: `Learn more about ${SITE_NAME} and the team behind it.`,
+  openGraph: {
+    title: `About — ${SITE_NAME}`,
+    description: `Learn more about ${SITE_NAME} and the team behind it.`,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: `About — ${SITE_NAME}`,
+    description: `Learn more about ${SITE_NAME} and the team behind it.`,
+  },
 }
 
 export default async function AboutPage() {
@@ -15,8 +28,17 @@ export default async function AboutPage() {
     getAuthors(),
   ])
 
+  // Changed: Breadcrumb JSON-LD for about page
+  const breadcrumbJsonLd = getBreadcrumbJsonLd([
+    { name: 'Home', url: absoluteUrl('/') },
+    { name: 'About', url: absoluteUrl('/about') },
+  ])
+
   return (
     <div>
+      {/* Changed: JSON-LD breadcrumb structured data */}
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* Hero Section */}
       <section className="relative bg-gray-900 text-white">
         <div className="absolute inset-0 overflow-hidden">

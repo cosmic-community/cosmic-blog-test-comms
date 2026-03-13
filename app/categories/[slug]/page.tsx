@@ -3,12 +3,15 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getCategoryBySlug, getPostsByCategoryId, getCategories } from '@/lib/cosmic'
 import PostCard from '@/components/PostCard'
+import JsonLd from '@/components/JsonLd'
+import { getCategoryMetadata, getBreadcrumbJsonLd, absoluteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+// Changed: Enhanced generateMetadata with full OG and Twitter card support
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const category = await getCategoryBySlug(slug)
@@ -17,10 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Category Not Found' }
   }
 
-  return {
-    title: `${category.metadata?.name || category.title} | Cosmic Blog`,
-    description: category.metadata?.description || `Posts in ${category.title}`,
-  }
+  return getCategoryMetadata(category)
 }
 
 export async function generateStaticParams() {
@@ -47,8 +47,18 @@ export default async function CategoryPage({ params }: PageProps) {
     return dateB - dateA
   })
 
+  // Changed: Build JSON-LD breadcrumb structured data for category page
+  const breadcrumbJsonLd = getBreadcrumbJsonLd([
+    { name: 'Home', url: absoluteUrl('/') },
+    { name: 'Categories', url: absoluteUrl('/categories') },
+    { name: category.metadata?.name || category.title, url: absoluteUrl(`/categories/${category.slug}`) },
+  ])
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Changed: JSON-LD breadcrumb structured data */}
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-brand-600 transition-colors">

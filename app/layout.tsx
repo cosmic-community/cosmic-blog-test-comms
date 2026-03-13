@@ -1,13 +1,11 @@
-import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CosmicBadge from '@/components/CosmicBadge'
+import { getDefaultMetadata } from '@/lib/seo'
 import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'Cosmic Blog',
-  description: 'A modern blog powered by Cosmic CMS — featuring posts on technology, travel, and more.',
-}
+// Changed: Use centralized SEO config for default metadata with OG and Twitter cards
+export const metadata = getDefaultMetadata()
 
 export default function RootLayout({
   children,

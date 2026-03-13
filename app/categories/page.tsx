@@ -1,10 +1,23 @@
 import Link from 'next/link'
 import { getCategories, getPosts } from '@/lib/cosmic'
+import JsonLd from '@/components/JsonLd'
+import { getBreadcrumbJsonLd, absoluteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
 
+// Changed: Enhanced static metadata with OG tags for categories index
 export const metadata: Metadata = {
-  title: 'Categories | Cosmic Blog',
-  description: 'Browse all blog categories.',
+  title: 'Categories',
+  description: 'Browse all blog categories on Cosmic Blog.',
+  openGraph: {
+    title: 'Categories',
+    description: 'Browse all blog categories on Cosmic Blog.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Categories',
+    description: 'Browse all blog categories on Cosmic Blog.',
+  },
 }
 
 export default async function CategoriesPage() {
@@ -13,8 +26,17 @@ export default async function CategoriesPage() {
     getPosts(),
   ])
 
+  // Changed: Breadcrumb JSON-LD for categories page
+  const breadcrumbJsonLd = getBreadcrumbJsonLd([
+    { name: 'Home', url: absoluteUrl('/') },
+    { name: 'Categories', url: absoluteUrl('/categories') },
+  ])
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Changed: JSON-LD breadcrumb structured data */}
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-brand-600 transition-colors">

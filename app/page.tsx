@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { getPosts, getCategories, formatDate } from '@/lib/cosmic'
 import PostCard from '@/components/PostCard'
 import NewsletterSignup from '@/components/NewsletterSignup'
+import JsonLd from '@/components/JsonLd'
+import { getWebsiteJsonLd, getBlogPostingJsonLd } from '@/lib/seo'
 import type { Post } from '@/types'
 
 export default async function HomePage() {
@@ -20,8 +22,22 @@ export default async function HomePage() {
   const heroPost: Post | undefined = sortedPosts[0]
   const remainingPosts = sortedPosts.slice(1)
 
+  // Changed: Build JSON-LD structured data for homepage and recent posts
+  const websiteJsonLd = getWebsiteJsonLd()
+  const blogJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Cosmic Blog',
+    description: 'A modern blog powered by Cosmic CMS — featuring posts on technology, travel, and more.',
+    blogPost: sortedPosts.slice(0, 10).map((post) => getBlogPostingJsonLd(post)),
+  }
+
   return (
     <div>
+      {/* Changed: JSON-LD structured data for homepage SEO */}
+      <JsonLd data={websiteJsonLd} />
+      <JsonLd data={blogJsonLd} />
+
       {/* Hero Section */}
       {heroPost && (
         <section className="relative bg-gray-900 text-white">

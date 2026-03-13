@@ -7,13 +7,16 @@ import AuthorCard from '@/components/AuthorCard'
 import NewsletterSignup from '@/components/NewsletterSignup'
 import PostCard from '@/components/PostCard'
 import CommentSection from '@/components/CommentSection'
+import JsonLd from '@/components/JsonLd'
+import { getPostMetadata, getBlogPostingJsonLd, getBreadcrumbJsonLd, absoluteUrl } from '@/lib/seo'
 import type { Metadata } from 'next'
-import type { Post } from '@/types' // Changed: Import Post type for relatedPosts annotation
+import type { Post } from '@/types'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+// Changed: Enhanced generateMetadata with full OG, Twitter card, and canonical URL support
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlug(slug)
@@ -22,10 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Post Not Found' }
   }
 
-  return {
-    title: `${post.title} | Cosmic Blog`,
-    description: post.metadata?.content?.substring(0, 160)?.replace(/[#*`]/g, '') || '',
-  }
+  return getPostMetadata(post)
 }
 
 export async function generateStaticParams() {
@@ -46,7 +46,6 @@ export default async function PostPage({ params }: PageProps) {
   const author = post.metadata?.author
   const category = post.metadata?.category
 
-  // Changed: Added explicit Post[] type annotation to fix TS7034/TS7005
   let relatedPosts: Post[] = []
   if (category?.id) {
     const categoryPosts = await getPostsByCategoryId(category.id)
@@ -55,11 +54,31 @@ export default async function PostPage({ params }: PageProps) {
       .slice(0, 3)
   }
 
-  // Changed: Fetch approved comments for this post
   const comments = await getCommentsByPostId(post.id)
+
+  // Changed: Build JSON-LD structured data for this blog post
+  const blogPostingJsonLd = getBlogPostingJsonLd(post)
+  const breadcrumbItems = [
+    { name: 'Home', url: absoluteUrl('/') },
+  ]
+  if (category) {
+    breadcrumbItems.push({
+      name: category.metadata?.name || category.title,
+      url: absoluteUrl(`/categories/${category.slug}`),
+    })
+  }
+  breadcrumbItems.push({
+    name: post.title,
+    url: absoluteUrl(`/posts/${post.slug}`),
+  })
+  const breadcrumbJsonLd = getBreadcrumbJsonLd(breadcrumbItems)
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Changed: JSON-LD structured data for post and breadcrumbs */}
+      <JsonLd data={blogPostingJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-brand-600 transition-colors">
@@ -151,12 +170,12 @@ export default async function PostPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* Changed: Comments Section */}
+      {/* Comments Section */}
       <div className="border-t border-gray-200 pt-10 mt-10">
         <CommentSection postId={post.id} postTitle={post.title} comments={comments} />
       </div>
 
-      {/* Changed: Related Posts Section */}
+      {/* Related Posts Section */}
       {relatedPosts.length > 0 && (
         <div className="border-t border-gray-200 pt-10 mt-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Posts</h2>

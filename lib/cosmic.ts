@@ -239,3 +239,19 @@ export function formatDate(dateString?: string): string {
     day: 'numeric',
   })
 }
+
+// Changed: Added getAllSlugs helper for sitemap generation - fetches all slugs for a given type
+export async function getAllSlugs(type: string): Promise<Array<{ slug: string; created_at?: string }>> {
+  try {
+    const response = await cosmic.objects
+      .find({ type })
+      .props(['slug', 'created_at'])
+
+    return response.objects as Array<{ slug: string; created_at?: string }>
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    return []
+  }
+}
