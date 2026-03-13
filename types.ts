@@ -50,6 +50,18 @@ export interface Post extends CosmicObject {
   }
 }
 
+// Changed: Added Page interface for the pages object type (merged from types/index.ts)
+export interface Page extends CosmicObject {
+  metadata: {
+    content?: string
+    hero_image?: {
+      url: string
+      imgix_url: string
+    }
+    subtitle?: string
+  }
+}
+
 // Cosmic API response
 export interface CosmicResponse<T> {
   objects: T[]
