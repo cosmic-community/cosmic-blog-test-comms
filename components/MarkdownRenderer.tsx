@@ -11,10 +11,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       remarkPlugins={[remarkGfm]}
       components={{
         img: ({ src, alt, ...props }) => {
-          // Optimize images served through imgix
-          const optimizedSrc = src?.includes('imgix.cosmicjs.com')
+          // Changed: Added typeof check to narrow src to string before calling .includes()
+          const optimizedSrc = typeof src === 'string' && src.includes('imgix.cosmicjs.com')
             ? `${src}?w=1400&auto=format,compress`
-            : src
+            : typeof src === 'string' ? src : ''
 
           return (
             <img
