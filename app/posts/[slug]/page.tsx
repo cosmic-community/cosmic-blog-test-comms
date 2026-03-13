@@ -8,6 +8,7 @@ import NewsletterSignup from '@/components/NewsletterSignup'
 import PostCard from '@/components/PostCard'
 import CommentSection from '@/components/CommentSection'
 import type { Metadata } from 'next'
+import type { Post } from '@/types' // Changed: Import Post type for relatedPosts annotation
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -45,8 +46,8 @@ export default async function PostPage({ params }: PageProps) {
   const author = post.metadata?.author
   const category = post.metadata?.category
 
-  // Changed: Fetch related posts from the same category (excluding current post)
-  let relatedPosts = []
+  // Changed: Added explicit Post[] type annotation to fix TS7034/TS7005
+  let relatedPosts: Post[] = []
   if (category?.id) {
     const categoryPosts = await getPostsByCategoryId(category.id)
     relatedPosts = categoryPosts
