@@ -145,6 +145,39 @@ export async function getPostsByAuthorId(authorId: string): Promise<Post[]> {
   }
 }
 
+// Changed: Added search function to query posts by title using Cosmic's search
+export async function searchPosts(query: string): Promise<Post[]> {
+  if (!query || query.trim().length === 0) {
+    return []
+  }
+
+  try {
+    const response = await cosmic.objects
+      .find({ type: 'posts' })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+      .depth(1)
+
+    const posts = response.objects as Post[]
+    const lowerQuery = query.toLowerCase().trim()
+
+    // Filter posts client-side for flexible matching across title and content
+    return posts.filter((post) => {
+      const titleMatch = post.title?.toLowerCase().includes(lowerQuery)
+      const contentMatch = post.metadata?.content?.toLowerCase().includes(lowerQuery)
+      const categoryMatch = post.metadata?.category?.title?.toLowerCase().includes(lowerQuery) ||
+        post.metadata?.category?.metadata?.name?.toLowerCase().includes(lowerQuery)
+      const authorMatch = post.metadata?.author?.title?.toLowerCase().includes(lowerQuery) ||
+        post.metadata?.author?.metadata?.name?.toLowerCase().includes(lowerQuery)
+      return titleMatch || contentMatch || categoryMatch || authorMatch
+    })
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to search posts')
+  }
+}
+
 // Helper to extract metafield values safely
 export function getMetafieldValue(field: unknown): string {
   if (field === null || field === undefined) return ''

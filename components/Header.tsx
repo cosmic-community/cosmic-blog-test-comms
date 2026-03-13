@@ -29,6 +29,27 @@ export default function Header() {
             >
               Categories
             </Link>
+            {/* Changed: Added search link with magnifying glass icon */}
+            <Link
+              href="/search"
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              aria-label="Search posts"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+              <span className="hidden sm:inline">Search</span>
+            </Link>
           </nav>
         </div>
       </div>
