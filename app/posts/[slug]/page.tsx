@@ -1,10 +1,12 @@
 // app/posts/[slug]/page.tsx
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPostBySlug, getPosts, formatDate } from '@/lib/cosmic'
+import { getPostBySlug, getPosts, getPostsByCategoryId, getCommentsByPostId, formatDate } from '@/lib/cosmic'
 import MarkdownRenderer from '@/components/MarkdownRenderer'
 import AuthorCard from '@/components/AuthorCard'
 import NewsletterSignup from '@/components/NewsletterSignup'
+import PostCard from '@/components/PostCard'
+import CommentSection from '@/components/CommentSection'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -42,6 +44,18 @@ export default async function PostPage({ params }: PageProps) {
 
   const author = post.metadata?.author
   const category = post.metadata?.category
+
+  // Changed: Fetch related posts from the same category (excluding current post)
+  let relatedPosts = []
+  if (category?.id) {
+    const categoryPosts = await getPostsByCategoryId(category.id)
+    relatedPosts = categoryPosts
+      .filter((p) => p.id !== post.id)
+      .slice(0, 3)
+  }
+
+  // Changed: Fetch approved comments for this post
+  const comments = await getCommentsByPostId(post.id)
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -133,6 +147,23 @@ export default async function PostPage({ params }: PageProps) {
       {author && (
         <div className="border-t border-gray-200 pt-10">
           <AuthorCard author={author} />
+        </div>
+      )}
+
+      {/* Changed: Comments Section */}
+      <div className="border-t border-gray-200 pt-10 mt-10">
+        <CommentSection postId={post.id} postTitle={post.title} comments={comments} />
+      </div>
+
+      {/* Changed: Related Posts Section */}
+      {relatedPosts.length > 0 && (
+        <div className="border-t border-gray-200 pt-10 mt-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Posts</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedPosts.map((relatedPost) => (
+              <PostCard key={relatedPost.id} post={relatedPost} />
+            ))}
+          </div>
         </div>
       )}
 

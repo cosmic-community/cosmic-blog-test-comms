@@ -1,5 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
-import type { Post, Author, Category, Page } from '@/types'
+import type { Post, Author, Category, Page, Comment } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -192,6 +192,26 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
       return null
     }
     throw new Error('Failed to fetch page')
+  }
+}
+
+// Changed: Added getCommentsByPostId to fetch approved comments for a specific post
+export async function getCommentsByPostId(postId: string): Promise<Comment[]> {
+  try {
+    const response = await cosmic.objects
+      .find({
+        type: 'comments',
+        'metadata.post_id': postId,
+        'metadata.status': 'Approved',
+      })
+      .props(['id', 'title', 'slug', 'metadata', 'created_at'])
+
+    return response.objects as Comment[]
+  } catch (error) {
+    if (hasStatus(error) && error.status === 404) {
+      return []
+    }
+    throw new Error('Failed to fetch comments')
   }
 }
 
